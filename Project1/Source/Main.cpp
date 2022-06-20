@@ -2,15 +2,23 @@
 #include "Compex.hpp"
 
 using namespace std;
+using namespace cpx;
 
 int main()
 {
-    Complex c1(1, 1);
+    setlocale(LC_ALL, "ru");
+    cout.precision(4);
+    cout.setf(ios::fixed);
 
-    cout << c1.getX() << endl;
-    cout << c1.getX() << endl;
-    cout << c1.getR() << endl;
-    cout << c1.getF() << endl;
+    auto c1 = Complex(10, 9) + Complex(1, 90, EXP_FORM);
+
+
+    cout << c1.GetRe() << endl;
+    cout << c1.GetIm() << endl;
+    cout << c1.GetMod() << endl;
+    cout << c1.GetArg() << endl;
+
+    cout << c1 << endl;
 
 
     return 0;

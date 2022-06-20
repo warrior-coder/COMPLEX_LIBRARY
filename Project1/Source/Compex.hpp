@@ -7,37 +7,44 @@
 #include <iostream>
 #include <cmath>
 
-
 // определение числа пи
-#define MATH_PI 3.14159265358979 
 
+namespace cpx
+{
 
-// определим макросы для большей читабельности
-#define COMP_0 Complex(0.0, 0.0)
-#define COMP_1 Complex(1.0, 0.0)
-#define COMP_J Complex(0.0, 1.0)
+constexpr double _pi = 3.14159265358979;
+constexpr double _epsilon = 1.0e-10;
 
+constexpr bool _IsZero(const double& value) noexcept // макрос сравнения числа с бесконечно малым
+{
+	return value < _epsilon && -value < _epsilon;
+}
+
+constexpr bool _IsEqual(const double& value1, const double& value2) noexcept // макрос равенства двух чисел с бесконечно малой точностью
+{
+	return (value1 - value2) < _epsilon && -(value1 - value2) < _epsilon;
+}
 
 // определим тригонометрические функции от градусов, чтобы в дальнейшем не работать с радианами
 // в данном случае актуален спецификатор inline, чтобы встраивать функции при компиляции и не вызывать их каждый раз
-inline double atan_deg(double value)
+inline double _AtanDeg(const double& value)
 { 
-	return atan(value) / MATH_PI * 180.0;
+	return std::atan(value) / _pi * 180.0;
 }
 
-inline double cos_deg(double angleDeg)
+inline double _CosDeg(const double& angleDeg)
 {
-	return cos(angleDeg / 180.0 * MATH_PI);
+	return std::cos(angleDeg / 180.0 * _pi);
 }
 
-inline double sin_deg(double angleDeg)
+inline double _SinDeg(const double& angleDeg)
 {
-	return sin(angleDeg / 180.0 * MATH_PI);
+	return std::sin(angleDeg / 180.0 * _pi);
 }
 
 
 // нормализация угла необходима, чтобы аргумент комплексного числа не выходил за пределы (-180°; 180°]
-inline void norm_deg(double& angleDeg)
+inline void _NormalizeDeg(double& angleDeg)
 {
 	while (angleDeg > 180.0)
 	{
@@ -52,20 +59,27 @@ inline void norm_deg(double& angleDeg)
 
 
 // функция получение аргумента комплексного числа по его алгебраическим параметрам 
-// одной функции atan_deg() не достаточно, т.к. она возвращает значения [-90; 90], а аргумент комплексного числа принимает (-180°; 180°]
-inline double arg_deg(double x, double y)
+// одной функции _AtanDeg() не достаточно, т.к. она возвращает значения [-90; 90], а аргумент комплексного числа принимает (-180°; 180°]
+inline double _ArgDeg(double re, double im)
 {
-	if (x < 0.0)
+	if (re < 0.0)
 	{
-		if (y > 0.0) return atan_deg(y / x) + 180.0;
-		else return atan_deg(y / x) - 180.0;
+		if (im > 0.0) return _AtanDeg(im / re) + 180.0;
+		else return _AtanDeg(im / re) - 180.0;
 	}
-	else if (fabs(x) < 1.0e-15)
+	else if (_IsZero(re))
 	{
-		if (y > 0.0) return 90.0;
+		if (im > 0.0) return 90.0;
 		else return -90.0;
 	}
-	return atan_deg(y / x);
+	return _AtanDeg(im / re);
+}
+
+
+// функция получение модуля комплексного числа по его алгебраическим параметрам 
+inline double _Mod(const double& re, const double& im)
+{
+	return std::sqrt(re * re + im * im);
 }
 
 
@@ -76,56 +90,37 @@ enum ExpForm
 };
 
 
-// класс комплексное число (Complex сокращенно от Complex)
+// класс комплексное число
 class Complex
 {
-private:
-	double x;		// действительная часть
-	double y;		// мнимая часть
-	double r;		// модуль
-	double f;		// аргумент
+	double _re;		// действительная часть
+	double _im;		// мнимая часть
+	double _mod;	// модуль
+	double _arg;	// аргумент
 
-	// объявляем статическую переменную – флаг формы ввывода комплексного числа
-	static int coutForm;
+	// флаг формы ввывода комплексного числа
+	static int _coutForm;
 
 public:
-	
-	// уонструкторо алгебраической формы
-	Complex(double x, double y)
-		: x(x)
-		, y(y)
+
+	// конструкторо алгебраической формы
+	Complex(double re = 0.0, double im = 0.0)
+		: _re(re)
+		, _im(im)
 	{
-		r = sqrt(x * x + y * y);
-		f = arg_deg(x, y);
+		_mod = std::sqrt(_re * _re + _im * _im);
+		_arg = _ArgDeg(_re, _im);
 	}
 
 	// конструктор экспоненциальной формы
 	// третий параметр лишь является указанием конструктора экспоненциальной формы
-	Complex(double r, double f, int)
-		: r(r)
-		, f(f)
+	explicit Complex(double mod, double arg, ExpForm)
+		: _mod(mod)
+		, _arg(arg)
 	{
-		x = r * cos_deg(f);
-		y = r * sin_deg(f);
+		_re = _mod * _CosDeg(_arg);
+		_im = _mod * _SinDeg(_arg);
 	}
-
-	// конструктор от одного параметра (конструктор преобразования) – комплексное число из одной действительной части
-	// нужен для выполнения неявных преобразований типа к Complex 
-	Complex(double x) 
-		: x(x)
-		, y(0.0)
-	{
-		r = sqrt(x * x + y * y);
-		f = arg_deg(x, y);
-	}
-
-	// конструкотр по умолчанию
-	Complex()
-		: x(0.0)
-		, y(0.0)
-		, r(0.0)
-		, f(0.0)
-	{}
 
 	// следующие перегруженные операции отражают логику математических операций над комплексными числами
 	// их реализация позволит не задумываться о преобразованиях форм и сразу получать результат
@@ -134,188 +129,212 @@ public:
 	// операция отрицания
 	Complex operator-()
 	{
-		return Complex(-x, -y);
+		return Complex(-_re, -_im);
 	}
 
 	// операция комплексной сопряжённости
 	Complex operator*()
 	{
-		return Complex(x, -y);
+		return Complex(_re, -_im);
 	}
 
 	// операция суммы
-	friend Complex operator+(const Complex& comp1, const Complex& comp2)
+	friend Complex operator+(const Complex& comlex1, const Complex& comlex2)
 	{
-		Complex res = comp1; // присваиваем результату первый параметр и к нему прибавляем второй
+		Complex result = comlex1; // присваиваем результату первый параметр и к нему прибавляем второй
 
-		res.x += comp2.x;
-		res.y += comp2.y;
-		res.r = sqrt(res.x * res.x + res.y * res.y);
-		res.f = arg_deg(res.x, res.y);
+		result._re += comlex2._re;
+		result._im += comlex2._im;
+		result._mod = std::sqrt(result._re * result._re + result._im * result._im);
+		result._arg = _ArgDeg(result._re, result._im);
 
-		return res;
+		return result;
 	}
 
 	// операция суммы с присваиванием
-	Complex& operator+=(const Complex& comp)
+	Complex& operator+=(const Complex& complex)
 	{
-		x += comp.x;
-		y += comp.y;
-		r = sqrt(x * x + y * y);
-		f = arg_deg(x, y);
+		_re += complex._re;
+		_im += complex._im;
+		_mod = _Mod(_re, _im);
+		_arg = _ArgDeg(_re, _im);
 
 		return *this;
 	}
 
 	// операция разности
-	friend Complex operator-(const Complex& comp1, const Complex& comp2)
+	friend Complex operator-(const Complex& comlex1, const Complex& comlex2)
 	{
-		Complex res = comp1;
+		Complex result = comlex1;
 
-		res.x -= comp2.x;
-		res.y -= comp2.y;
-		res.r = sqrt(res.x * res.x + res.y * res.y);
-		res.f = arg_deg(res.x, res.y);
+		result._re -= comlex2._re;
+		result._im -= comlex2._im;
+		result._mod = _Mod(result._re, result._im);
+		result._arg = _ArgDeg(result._re, result._im);
 
-		return res;
+		return result;
 	}
 
-	// операция суммы с присваиванием
-	Complex& operator-=(const Complex& comp)
+	// операция разности с присваиванием
+	Complex& operator-=(const Complex& complex)
 	{
-		x -= comp.x;
-		y -= comp.y;
-		r = sqrt(x * x + y * y);
-		f = arg_deg(x, y);
+		_re -= complex._re;
+		_im -= complex._im;
+		_mod = _Mod(_re, _im);
+		_arg = _ArgDeg(_re, _im);
 
 		return *this;
 	}
 
 	// операция умножения
-	friend Complex operator*(const Complex& comp1, const Complex& comp2)
+	friend Complex operator*(const Complex& comlex1, const Complex& comlex2)
 	{
-		Complex res = comp1;
+		Complex result = comlex1;
 
-		res.r *= comp2.r;
-		res.f += comp2.f;
-		norm_deg(res.f); // нормализируем угол
-		res.x = res.r * cos_deg(res.f);
-		res.y = res.r * sin_deg(res.f);
+		result._mod *= comlex2._mod;
+		result._arg += comlex2._arg;
+		_NormalizeDeg(result._arg); // нормализируем угол
+		result._re = result._mod * _CosDeg(result._arg);
+		result._im = result._mod * _SinDeg(result._arg);
 
-		return res;
+		return result;
 	}
 
 
-	// операция суммы с присваиванием
-	Complex& operator*=(const Complex& comp)
+	// операция умножения с присваиванием
+	Complex& operator*=(const Complex& complex)
 	{
-		r *= comp.r;
-		f += comp.f;
-		norm_deg(f); // нормализируем угол
-		x = r * cos_deg(f);
-		y = r * sin_deg(f);
+		_mod *= complex._mod;
+		_arg += complex._arg;
+		_NormalizeDeg(_arg); // нормализируем угол
+		_re = _mod * _CosDeg(_arg);
+		_im = _mod * _SinDeg(_arg);
 
 		return *this;
 	}
-
 
 	// операция деления
-	friend Complex operator/(const Complex& comp1, const Complex& comp2)
+	friend Complex operator/(const Complex& comlex1, const Complex& comlex2)
 	{
-		Complex res = comp1;
+		Complex result = comlex1;
 
-		res.r /= comp2.r;
-		res.f -= comp2.f;
-		norm_deg(res.f); // нормализируем угол
-		res.x = res.r * cos_deg(res.f);
-		res.y = res.r * sin_deg(res.f);
+		result._mod /= comlex2._mod;
+		result._arg -= comlex2._arg;
+		_NormalizeDeg(result._arg); // нормализируем угол
+		result._re = result._mod * _CosDeg(result._arg);
+		result._im = result._mod * _SinDeg(result._arg);
 
-		return res;
+		return result;
 	}
 
-	// операция суммы с присваиванием
-	Complex& operator/=(const Complex& comp)
+	// операция деления с присваиванием
+	Complex& operator/=(const Complex& complex)
 	{
-		r /= comp.r;
-		f -= comp.f;
-		norm_deg(f); // нормализируем угол
-		x = r * cos_deg(f);
-		y = r * sin_deg(f);
+		_mod /= complex._mod;
+		_arg -= complex._arg;
+		_NormalizeDeg(_arg); // нормализируем угол
+		_re = _mod * _CosDeg(_arg);
+		_im = _mod * _SinDeg(_arg);
 
 		return *this;
 	}
 
-	Complex& operator=(const Complex& comp)
+	// операция присваивания
+	Complex& operator=(const Complex&) = default;
+
+	// методы получения свойств
+	inline double GetRe() const noexcept
+	{ 
+		return _re;
+	}
+	inline double GetIm() const noexcept
+	{ 
+		return _im;
+	}
+	inline double GetMod() const noexcept
+	{ 
+		return _mod;
+	}
+	inline double GetArg() const noexcept
+	{ 
+		return _arg;
+	}
+
+	// методы установки свойств
+	inline void SetRe(const double& re)
 	{
-		x = comp.x;
-		y = comp.y;
-		r = comp.r;
-		f = comp.f;
-		
-		return *this;
+		_re = re;
+
+		_mod = _Mod(_re, _im);
+		_arg = _ArgDeg(_re, _im);
 	}
 
-	// методы получения значений параметров комплексного числа
-	inline double getX() const
-	{ 
-		return x;
-	}
-	inline double getY() const
-	{ 
-		return y;
-	}
-	inline double getR() const
-	{ 
-		return r;
-	}
-	inline double getF() const
-	{ 
-		return f;
-	}
+	inline void SetIm(const double& im)
+	{
+		_im = im;
 
+		_mod = _Mod(_re, _im);
+		_arg = _ArgDeg(_re, _im);
+	}
+	
+	inline void SetMod(const double& mod)
+	{
+		_mod = mod;
+
+		_re = _mod * _CosDeg(_arg);
+		_im = _mod * _SinDeg(_arg);
+	}
+	
+	inline void SetArg(const double& arg)
+	{
+		_arg = arg;
+
+		_re = _mod * _CosDeg(_arg);
+		_im = _mod * _SinDeg(_arg);
+	}
+	
 	friend std::ostream& alg(std::ostream& os)
 	{
-		Complex::coutForm = 1;
+		Complex::_coutForm = 1;
 
 		return os;
 	}
 
 	friend std::ostream& exp(std::ostream& os)
 	{
-		Complex::coutForm = 0;
+		Complex::_coutForm = 0;
 
 		return os;
 	}
 
 	// операция помещения в поток вывода
-	// вывод происходит в экспоненциальной форме
-	friend std::ostream& operator<<(std::ostream& os, const Complex& comp)
+	friend std::ostream& operator<<(std::ostream& os, const Complex& complex)
 	{
 		// выбор формы вывода
-		if (Complex::coutForm)
+		if (Complex::_coutForm)
 		{
 			// проверяем параметры на отличие от нуля, чтобы не выводить нулевые значения
-			if (fabs(comp.r) > 1.0e-5)
+			if (!_IsZero(complex._mod))
 			{
-				os << comp.r;
+				os << complex._mod;
 
-				if (fabs(comp.f) > 1.0e-5)
+				if (!_IsZero(complex._arg))
 				{
 					os << "e^";
-					os << comp.f << 'j';
+					os << complex._arg << 'j';
 				}
 			}
 			else os << "0";
 		}
 		else
 		{
-			if (fabs(comp.x) > 1.0e-5) os << comp.x;
+			if (_IsZero(complex._re)) os << complex._re;
 			else os << "0";
 
-			if (fabs(comp.y) > 1.0e-5)
+			if (_IsZero(complex._im))
 			{
 				os.setf(std::ios::showpos);
-				os << comp.y << 'j';
+				os << complex._im << 'j';
 				os.unsetf(std::ios::showpos);
 			}
 			else os << "+0j";
@@ -325,4 +344,6 @@ public:
 	}
 };
 
-int Complex::coutForm = 1; // определение статической переменной
+int Complex::_coutForm = 1; // определение статической переменной
+
+}
