@@ -6,6 +6,8 @@
 
 #include <iostream>
 #include <cmath>
+#include <string>
+#include <sstream>
 
 namespace cpx
 {
@@ -31,10 +33,15 @@ inline void _NormalizeDeg(double& angleDeg); // нормализация угла
 inline double _ArgDeg(const double& re, const double& im); // получение аргумента в грдусах комплексного числа по его алгебраическим параметрам
 inline double _Mod(const double& re, const double& im); // получение модуля комплексного числа по его алгебраическим параметрам 
 
-// флаг конструктора экспоненциальной формы
-enum ExpForm
+enum ConstructForm // флаг конструктора экспоненциальной формы
 {
-	EXP_FORM
+	EXP
+};
+
+enum OutForm // флаги формы вывода
+{
+	OUT_ALG,
+	OUT_EXP
 };
 
 
@@ -46,12 +53,12 @@ class Complex
 	double _mod;	// модуль
 	double _arg;	// аргумент
 
-	static int _coutForm; // флаг формы ввывода комплексного числа
+	static int _outForm; // флаг формы вывода комплексного числа
 
 public:
 	Complex(double re = 0.0, double im = 0.0); // конструкторо алгебраической формы
 	
-	explicit Complex(double mod, double arg, ExpForm); // конструктор экспоненциальной формы
+	explicit Complex(double mod, double arg, ConstructForm); // конструктор экспоненциальной формы
 
 	~Complex() = default; // деструктор
 
@@ -83,40 +90,55 @@ public:
 	void SetMod(const double& mod);
 	void SetArg(const double& arg);
 	
+	static void SetOutForm(const OutForm& outForm); // метод установки формы вывода
+
 	friend std::ostream& operator<<(std::ostream& os, const Complex& complex) // операция помещения в поток вывода
 	{
-		// выбор формы вывода
-		if (Complex::_coutForm)
+		if (Complex::_outForm == OutForm::OUT_ALG) // выбор формы вывода
 		{
-			// проверяем параметры на отличие от нуля, чтобы не выводить нулевые значения
-			if (!_IsZero(complex._mod))
+			if (_IsZero(complex._re)) // проверяем значение на отличие от нуля, чтобы не выводить нулевые значения
 			{
-				os << complex._mod;
-
-				if (!_IsZero(complex._arg))
-				{
-					os << "e^";
-					os << complex._arg << 'j';
-				}
+				os << complex._re;
 			}
-			else os << "0";
-		}
-		else
-		{
-			if (_IsZero(complex._re)) os << complex._re;
-			else os << "0";
+			else
+			{
+				os << "0";
+			}
 
-			if (_IsZero(complex._im))
+			if (_IsZero(complex._im)) // проверяем значение на отличие от нуля, чтобы не выводить нулевые значения
 			{
 				os.setf(std::ios::showpos);
 				os << complex._im << 'j';
 				os.unsetf(std::ios::showpos);
 			}
-			else os << "+0j";
+			else
+			{
+				os << "+0j";
+			}
+		}
+		else
+		{
+			if (!_IsZero(complex._mod)) // проверяем значение на отличие от нуля, чтобы не выводить нулевые значения
+			{
+				os << complex._mod;
+
+				if (!_IsZero(complex._arg)) // проверяем значение на отличие от нуля, чтобы не выводить нулевые значения
+				{
+					os << "e^";
+					os << complex._arg << 'j';
+				}
+			}
+			else
+			{
+				os << "0";
+			}
 		}
 
 		return os;
 	}
+
+	std::string ToString() const;
+	
 };
 
 }

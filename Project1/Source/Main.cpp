@@ -11,6 +11,7 @@ int main()
     cout.precision(4);
     cout.setf(ios::fixed);
 
+    Complex::SetOutForm(OUT_ALG);
     cout << Complex(1.0, 1.0) << endl;
 
     return 0;

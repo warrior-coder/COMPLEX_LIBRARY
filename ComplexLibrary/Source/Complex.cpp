@@ -7,7 +7,8 @@
 namespace cpx
 {
 
-int Complex::_coutForm = 1;
+// определяем флаг формы вывода комплексного числа
+int Complex::_outForm{ OutForm::OUT_ALG };
 
 // определим тригонометрические функции от градусов, чтобы в дальнейшем не работать с радианами
 // в данном случае актуален спецификатор inline, чтобы встраивать функции при компиляции и не вызывать их каждый раз
@@ -75,10 +76,12 @@ Complex::Complex(double re, double im)
 }
 
 // конструктор экспоненциальной формы (третий параметр является лишь указанием конструктора экспоненциальной формы)
-Complex::Complex(double mod, double arg, ExpForm)
+Complex::Complex(double mod, double arg, ConstructForm)
 	: _mod(mod)
 	, _arg(arg)
 {
+	_NormalizeDeg(_arg);
+
 	_re = _mod * _CosDeg(_arg);
 	_im = _mod * _SinDeg(_arg);
 }
@@ -249,6 +252,12 @@ void Complex::SetArg(const double& arg)
 	_im = _mod * _SinDeg(_arg);
 }
 
+// метод установки флага формы вывода комплексного числа
+void Complex::SetOutForm(const OutForm& outForm)
+{
+	Complex::_outForm = outForm;
+}
+
 // операция равенства
 bool Complex::operator==(const Complex& comlex2) const
 {
@@ -259,6 +268,57 @@ bool Complex::operator==(const Complex& comlex2) const
 bool Complex::operator!=(const Complex& comlex2) const
 {
 	return !_IsEqual(_re, comlex2._re) || !_IsEqual(_im, comlex2._im);
+}
+
+//
+std::string Complex::ToString() const
+{
+	std::ostringstream oss;
+
+	oss.precision(4);
+	oss.setf(std::ios::fixed);
+
+	if (Complex::_outForm == OutForm::OUT_ALG) // выбор формы вывода
+	{
+		if (_IsZero(_re)) // проверяем значение на отличие от нуля, чтобы не выводить нулевые значения
+		{
+			oss << _re;
+		}
+		else
+		{
+			oss << "0";
+		}
+
+		if (_IsZero(_im)) // проверяем значение на отличие от нуля, чтобы не выводить нулевые значения
+		{
+			oss.setf(std::ios::showpos);
+			oss << _im << 'j';
+			oss.unsetf(std::ios::showpos);
+		}
+		else
+		{
+			oss << "+0j";
+		}
+	}
+	else
+	{
+		if (!_IsZero(_mod)) // проверяем значение на отличие от нуля, чтобы не выводить нулевые значения
+		{
+			oss << _mod;
+
+			if (!_IsZero(_arg)) // проверяем значение на отличие от нуля, чтобы не выводить нулевые значения
+			{
+				oss << "e^";
+				oss << _arg << 'j';
+			}
+		}
+		else
+		{
+			oss << "0";
+		}
+	}
+
+	return oss.str();
 }
 
 }
