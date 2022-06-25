@@ -34,7 +34,7 @@ namespace UnitTest
 			auto actual = Complex(25, 180, EXP) * Complex(5, 180, EXP);
 			auto expected = Complex(125, 360, EXP);
 
-			Complex::SetOutForm(OUT_EXP);
+			Complex::SetOutForm(OutForm::OUT_EXP);
 			Logger::WriteMessage(actual.ToString().c_str());
 			Logger::WriteMessage("\n");
 			Logger::WriteMessage(expected.ToString().c_str());
@@ -46,7 +46,7 @@ namespace UnitTest
 			auto actual = Complex(25, 180, EXP) / Complex(5, 180, EXP);
 			auto expected = Complex(5, 360, EXP);
 
-			Complex::SetOutForm(OUT_EXP);
+			Complex::SetOutForm(OutForm::OUT_EXP);
 			Logger::WriteMessage(actual.ToString().c_str());
 			Logger::WriteMessage("\n");
 			Logger::WriteMessage(expected.ToString().c_str());

@@ -7,8 +7,9 @@
 namespace cpx
 {
 
-// определяем флаг формы вывода комплексного числа
-int Complex::_outForm{ OutForm::OUT_ALG };
+// определяем флаги
+OutForm Complex::_outForm{ OutForm::OUT_ALG };
+size_t Complex::_outPrecision{ 3u };
 
 // определим тригонометрические функции от градусов, чтобы в дальнейшем не работать с радианами
 // в данном случае актуален спецификатор inline, чтобы встраивать функции при компиляции и не вызывать их каждый раз
@@ -76,7 +77,7 @@ Complex::Complex(double re, double im)
 }
 
 // конструктор экспоненциальной формы (третий параметр является лишь указанием конструктора экспоненциальной формы)
-Complex::Complex(double mod, double arg, ConstructForm)
+Complex::Complex(double mod, double arg, const ConstructForm&)
 	: _mod(mod)
 	, _arg(arg)
 {
@@ -87,13 +88,13 @@ Complex::Complex(double mod, double arg, ConstructForm)
 }
 
 // операция отрицания
-Complex Complex::operator-()
+Complex Complex::operator-() const
 {
 	return Complex(-_re, -_im);
 }
 
 // операция комплексной сопряжённости
-Complex Complex::operator*()
+Complex Complex::operator*() const
 {
 	return Complex(_re, -_im);
 }
@@ -258,6 +259,12 @@ void Complex::SetOutForm(const OutForm& outForm)
 	Complex::_outForm = outForm;
 }
 
+// метод установки количества знаков после запятой при выводе
+void Complex::SetOutPrecision(const size_t& outPrecision)
+{
+	Complex::_outPrecision = outPrecision;
+}
+
 // операция равенства
 bool Complex::operator==(const Complex& comlex2) const
 {
@@ -270,26 +277,26 @@ bool Complex::operator!=(const Complex& comlex2) const
 	return !_IsEqual(_re, comlex2._re) || !_IsEqual(_im, comlex2._im);
 }
 
-//
+// метод преобразования в строку
 std::string Complex::ToString() const
 {
 	std::ostringstream oss;
 
-	oss.precision(4);
 	oss.setf(std::ios::fixed);
+	oss.precision(Complex::_outPrecision);
 
 	if (Complex::_outForm == OutForm::OUT_ALG) // выбор формы вывода
 	{
-		if (_IsZero(_re)) // проверяем значение на отличие от нуля, чтобы не выводить нулевые значения
+		if (!_IsZero(_re)) // проверяем значение на отличие от нуля, чтобы не выводить нулевые значения
 		{
 			oss << _re;
 		}
 		else
 		{
-			oss << "0";
+			oss << '0';
 		}
 
-		if (_IsZero(_im)) // проверяем значение на отличие от нуля, чтобы не выводить нулевые значения
+		if (!_IsZero(_im)) // проверяем значение на отличие от нуля, чтобы не выводить нулевые значения
 		{
 			oss.setf(std::ios::showpos);
 			oss << _im << 'j';
@@ -308,17 +315,22 @@ std::string Complex::ToString() const
 
 			if (!_IsZero(_arg)) // проверяем значение на отличие от нуля, чтобы не выводить нулевые значения
 			{
-				oss << "e^";
-				oss << _arg << 'j';
+				oss << "e^" << _arg << 'j';
 			}
 		}
 		else
 		{
-			oss << "0";
+			oss << '0';
 		}
 	}
 
 	return oss.str();
+}
+
+// операция приведения Complex к double
+Complex::operator double() const noexcept
+{
+	return _mod;
 }
 
 }
