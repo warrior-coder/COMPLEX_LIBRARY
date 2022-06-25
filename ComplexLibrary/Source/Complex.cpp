@@ -44,7 +44,7 @@ inline void _NormalizeDeg(double& angleDeg)
 
 // получение аргумента комплексного числа по его алгебраическим параметрам 
 // одной функции _AtanDeg() не достаточно, т.к. она возвращает значения [-90; 90], а аргумент комплексного числа принимает (-180°; 180°]
-inline double _ArgDeg(double re, double im)
+inline double _ArgDeg(const double& re, const double& im)
 {
 	if (re < 0.0)
 	{

@@ -28,7 +28,7 @@ inline double _CosDeg(const double& angleDeg);
 inline double _SinDeg(const double& angleDeg);
 
 inline void _NormalizeDeg(double& angleDeg); // нормализация угла
-inline double _ArgDeg(double re, double im); // получение аргумента в грдусах комплексного числа по его алгебраическим параметрам
+inline double _ArgDeg(const double& re, const double& im); // получение аргумента в грдусах комплексного числа по его алгебраическим параметрам
 inline double _Mod(const double& re, const double& im); // получение модуля комплексного числа по его алгебраическим параметрам 
 
 // флаг конструктора экспоненциальной формы

@@ -11,17 +11,7 @@ int main()
     cout.precision(4);
     cout.setf(ios::fixed);
 
-    auto c1 = Complex(10, 9) + Complex(1, 90, EXP_FORM);
-
-    cout << c1.GetRe() << endl;
-    cout << c1.GetIm() << endl;
-    cout << c1.GetMod() << endl;
-    cout << c1.GetArg() << endl;
-
-    cout << (c1 == Complex(10, 10)) << endl;
-    cout << (c1 == Complex(11, 10)) << endl;
-    cout << (c1 == Complex(11, 11)) << endl;
-    cout << (c1 == Complex(10, 11)) << endl;
+    cout << Complex(1.0, 1.0) << endl;
 
     return 0;
 }
