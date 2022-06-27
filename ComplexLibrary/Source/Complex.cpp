@@ -7,9 +7,14 @@
 namespace cpx
 {
 
+
+// определяем точность сравнения
+double CompareDouble::_epsilon{ 1.0e-10 };
+
 // определяем флаги
 OutForm Complex::_outForm{ OutForm::OUT_ALG };
 size_t Complex::_outPrecision{ 3u };
+
 
 // определим тригонометрические функции от градусов, чтобы в дальнейшем не работать с радианами
 // в данном случае актуален спецификатор inline, чтобы встраивать функции при компиляции и не вызывать их каждый раз
@@ -28,7 +33,6 @@ inline double _SinDeg(const double& angleDeg)
 	return std::sin(angleDeg / 180.0 * _pi);
 }
 
-
 // нормализация угла необходима, чтобы аргумент комплексного числа не выходил за пределы (-180°; 180°]
 inline void _NormalizeDeg(double& angleDeg)
 {
@@ -43,9 +47,8 @@ inline void _NormalizeDeg(double& angleDeg)
 	}
 }
 
-
 // получение аргумента комплексного числа по его алгебраическим параметрам 
-// одной функции _AtanDeg() не достаточно, т.к. она возвращает значения [-90; 90], а аргумент комплексного числа принимает (-180°; 180°]
+// одной функции _AtanDeg() не достаточно, она возвращает значения [-90; 90], а аргумент комплексного числа принимает (-180°; 180°]
 inline double _ArgDeg(const double& re, const double& im)
 {
 	if (re < 0.0)
@@ -53,7 +56,7 @@ inline double _ArgDeg(const double& re, const double& im)
 		if (im > 0.0) return _AtanDeg(im / re) + 180.0;
 		else return _AtanDeg(im / re) - 180.0;
 	}
-	else if (_IsZero(re))
+	else if (CompareDouble::IsZero(re))
 	{
 		if (im > 0.0) return 90.0;
 		else return -90.0;
@@ -66,6 +69,7 @@ inline double _Mod(const double& re, const double& im)
 {
 	return std::sqrt(re * re + im * im);
 }
+
 
 // конструкторо алгебраической формы
 Complex::Complex(double re, double im)
@@ -268,13 +272,13 @@ void Complex::SetOutPrecision(const size_t& outPrecision)
 // операция равенства
 bool Complex::operator==(const Complex& comlex2) const
 {
-	return _IsEqual(_re, comlex2._re) && _IsEqual(_im, comlex2._im);
+	return CompareDouble::AreEqual(_re, comlex2._re) && CompareDouble::AreEqual(_im, comlex2._im);
 }
 
 // операция неравенства
 bool Complex::operator!=(const Complex& comlex2) const
 {
-	return !_IsEqual(_re, comlex2._re) || !_IsEqual(_im, comlex2._im);
+	return !CompareDouble::AreEqual(_re, comlex2._re) || !CompareDouble::AreEqual(_im, comlex2._im);
 }
 
 // метод преобразования в строку
@@ -287,7 +291,7 @@ std::string Complex::ToString() const
 
 	if (Complex::_outForm == OutForm::OUT_ALG) // выбор формы вывода
 	{
-		if (!_IsZero(_re)) // проверяем значение на отличие от нуля, чтобы не выводить нулевые значения
+		if (!CompareDouble::IsZero(_re)) // проверяем значение на отличие от нуля, чтобы не выводить нулевые значения
 		{
 			oss << _re;
 		}
@@ -296,7 +300,7 @@ std::string Complex::ToString() const
 			oss << '0';
 		}
 
-		if (!_IsZero(_im)) // проверяем значение на отличие от нуля, чтобы не выводить нулевые значения
+		if (!CompareDouble::IsZero(_im)) // проверяем значение на отличие от нуля, чтобы не выводить нулевые значения
 		{
 			oss.setf(std::ios::showpos);
 			oss << _im << 'j';
@@ -309,11 +313,11 @@ std::string Complex::ToString() const
 	}
 	else
 	{
-		if (!_IsZero(_mod)) // проверяем значение на отличие от нуля, чтобы не выводить нулевые значения
+		if (!CompareDouble::IsZero(_mod)) // проверяем значение на отличие от нуля, чтобы не выводить нулевые значения
 		{
 			oss << _mod;
 
-			if (!_IsZero(_arg)) // проверяем значение на отличие от нуля, чтобы не выводить нулевые значения
+			if (!CompareDouble::IsZero(_arg)) // проверяем значение на отличие от нуля, чтобы не выводить нулевые значения
 			{
 				oss << "e^" << _arg << 'j';
 			}

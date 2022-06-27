@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "CppUnitTest.h"
-#include "Complex.hpp" // подключаем файл "Complex.hpp" для работы с комплексными числами
+#include "Complex.hpp" // подключаем библиотеку "Complex.hpp" для работы с комплексными числами
 
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
