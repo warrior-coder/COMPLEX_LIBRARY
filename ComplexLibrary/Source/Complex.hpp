@@ -19,32 +19,18 @@ class CompareDouble // статический класс сравненяи чисел double с точностью epsi
 {
 private:
 	CompareDouble(); // объявляем закрытый конструктор, чтобы запретить создание экземпляров класса
-	
+
 	static double _epsilon; // бесконечно малое число для double
 
 public:
+	template<typename T>
+	static bool IsZero(const T& value) noexcept; // макрос сравнения числа с бесконечно малым
 
 	template<typename T>
-	static bool IsZero(const T& value) noexcept // макрос сравнения числа с бесконечно малым
-	{
-		return static_cast<double>(value) < _epsilon && -static_cast<double>(value) < _epsilon;
-	}
+	static bool AreEqual(const T& value1, const T& value2) noexcept; // макрос равенства двух чисел с бесконечно малой точностью
 
-	template<typename T>
-	static bool AreEqual(const T& value1, const T& value2) noexcept // макрос равенства двух чисел с бесконечно малой точностью
-	{
-		return static_cast<double>(value1 - value2) < _epsilon && -static_cast<double>(value1 - value2) < _epsilon;
-	}
-
-	static void SetEpsilon(const double& epsilon) noexcept // метод установки свойств
-	{
-		_epsilon = epsilon;
-	}
-
-	static double GetEpsilon(const double& epsilon) noexcept // метод получения свойств
-	{
-		return _epsilon;
-	}
+	static void SetEpsilon(const double& epsilon) noexcept; // метод установки свойств
+	static double GetEpsilon(const double& epsilon) noexcept; // метод получения свойств
 };
 
 

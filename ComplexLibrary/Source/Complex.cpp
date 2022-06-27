@@ -11,6 +11,34 @@ namespace cpx
 // определяем точность сравнения
 double CompareDouble::_epsilon{ 1.0e-10 };
 
+
+// макрос сравнения числа с бесконечно малым
+template<typename T>
+bool CompareDouble::IsZero(const T& value) noexcept
+{
+	return static_cast<double>(value) < _epsilon && -static_cast<double>(value) < _epsilon;
+}
+
+// макрос равенства двух чисел с бесконечно малой точностью
+template<typename T>
+bool CompareDouble::AreEqual(const T& value1, const T& value2) noexcept
+{
+	return static_cast<double>(value1 - value2) < _epsilon && -static_cast<double>(value1 - value2) < _epsilon;
+}
+
+// метод установки свойств
+void CompareDouble::SetEpsilon(const double& epsilon) noexcept
+{
+	_epsilon = epsilon;
+}
+
+// метод получения свойств
+double CompareDouble::GetEpsilon(const double& epsilon) noexcept
+{
+	return _epsilon;
+}
+
+
 // определяем флаги
 OutForm Complex::_outForm{ OutForm::OUT_ALG };
 size_t Complex::_outPrecision{ 3u };
@@ -106,7 +134,7 @@ Complex Complex::operator*() const
 // операция суммы
 Complex operator+(const Complex& comlex1, const Complex& comlex2)
 {
-	Complex result{ comlex1 }; // присваиваем результату первый параметр и к нему прибавляем второй
+	Complex result(comlex1); // присваиваем результату первый параметр и к нему прибавляем второй
 
 	result._re += comlex2._re;
 	result._im += comlex2._im;
@@ -119,7 +147,7 @@ Complex operator+(const Complex& comlex1, const Complex& comlex2)
 // операция разности
 Complex operator-(const Complex& comlex1, const Complex& comlex2)
 {
-	Complex result{ comlex1 };
+	Complex result(comlex1);
 
 	result._re -= comlex2._re;
 	result._im -= comlex2._im;
@@ -132,7 +160,7 @@ Complex operator-(const Complex& comlex1, const Complex& comlex2)
 // операция умножения
 Complex operator*(const Complex& comlex1, const Complex& comlex2)
 {
-	Complex result{ comlex1 };
+	Complex result(comlex1);
 
 	result._mod *= comlex2._mod;
 	result._arg += comlex2._arg;
@@ -146,7 +174,7 @@ Complex operator*(const Complex& comlex1, const Complex& comlex2)
 // операция деления
 Complex operator/(const Complex& comlex1, const Complex& comlex2)
 {
-	Complex result{ comlex1 };
+	Complex result(comlex1);
 
 	result._mod /= comlex2._mod;
 	result._arg -= comlex2._arg;
