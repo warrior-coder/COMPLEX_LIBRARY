@@ -12,17 +12,15 @@ double CompareDouble::_epsilon{ 1.0e-10 };
 
 
 // макрос сравнения числа с бесконечно малым
-template<typename T>
-bool CompareDouble::IsZero(const T& value) noexcept
+bool CompareDouble::IsZero(const double& value) noexcept
 {
-	return static_cast<double>(value) < _epsilon && -static_cast<double>(value) < _epsilon;
+	return value < _epsilon && -value < _epsilon;
 }
 
 // макрос равенства двух чисел с бесконечно малой точностью
-template<typename T>
-bool CompareDouble::AreEqual(const T& value1, const T& value2) noexcept
+bool CompareDouble::AreEqual(const double& value1, const double& value2) noexcept
 {
-	return static_cast<double>(value1 - value2) < _epsilon && -static_cast<double>(value1 - value2) < _epsilon;
+	return (value1 - value2) < _epsilon && -(value1 - value2) < _epsilon;
 }
 
 // метод установки свойств

@@ -1,7 +1,8 @@
 // Complex.hpp
 // в данном файле описан класс Complex для работы с комплексными числами
 
-#pragma once
+#ifndef _COMPLEX_HPP_
+#define _COMPLEX_HPP_ // define вместо pragma once, чтобы видеть, что этот файл был подключен
 
 #include <iostream>
 #include <cmath>
@@ -23,11 +24,8 @@ private:
 	static double _epsilon; // бесконечно малое число для double
 
 public:
-	template<typename T>
-	static bool IsZero(const T& value) noexcept; // макрос сравнения числа с бесконечно малым
-
-	template<typename T>
-	static bool AreEqual(const T& value1, const T& value2) noexcept; // макрос равенства двух чисел с бесконечно малой точностью
+	static bool IsZero(const double& value) noexcept; // сравнение числа с бесконечно малым
+	static bool AreEqual(const double& value1, const double& value2) noexcept; // равенство двух чисел с бесконечно малой точностью
 
 	static void SetEpsilon(const double& epsilon) noexcept; // метод установки свойств
 	static double GetEpsilon(const double& epsilon) noexcept; // метод получения свойств
@@ -154,3 +152,5 @@ public:
 };
 
 }
+
+#endif // !_COMPLEX_HPP_
