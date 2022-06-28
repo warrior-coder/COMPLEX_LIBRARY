@@ -15,8 +15,8 @@ namespace UnitTest
 		
 		TEST_METHOD(TestMethod1)
 		{
-			auto actual = Complex(10, 5) + Complex(5, 90, EXP);
-			auto expected = Complex(10, 10);
+			auto actual = (1 + Complex(5, 90, EXP) + 1.f + 1l + 1u + 1.l) * 1;
+			auto expected = Complex(5, 5);
 
 			Assert::IsTrue(actual == expected);
 		}

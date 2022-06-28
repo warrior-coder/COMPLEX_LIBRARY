@@ -75,20 +75,20 @@ public:
 	Complex operator-() const; // операция отрицания
 	Complex operator*() const; // операция комплексной сопряжённости
 	
-	friend Complex operator+(const Complex& comlex1, const Complex& comlex2); // операция суммы
-	friend Complex operator-(const Complex& comlex1, const Complex& comlex2); // операция разности
-	friend Complex operator*(const Complex& comlex1, const Complex& comlex2); // операция умножения
-	friend Complex operator/(const Complex& comlex1, const Complex& comlex2); // операция деления
+	friend Complex operator+(const Complex& complex1, const Complex& complex2); // операция суммы
+	friend Complex operator-(const Complex& complex1, const Complex& complex2); // операция разности
+	friend Complex operator*(const Complex& complex1, const Complex& complex2); // операция умножения
+	friend Complex operator/(const Complex& complex1, const Complex& complex2); // операция деления
 
-	Complex& operator+=(const Complex& comlex2); // операция суммы с присваиванием
-	Complex& operator-=(const Complex& comlex2); // операция разности с присваиванием
-	Complex& operator*=(const Complex& comlex2); // операция умножения с присваиванием
-	Complex& operator/=(const Complex& comlex2); // операция деления с присваиванием
+	Complex& operator+=(const Complex& complex2); // операция суммы с присваиванием
+	Complex& operator-=(const Complex& complex2); // операция разности с присваиванием
+	Complex& operator*=(const Complex& complex2); // операция умножения с присваиванием
+	Complex& operator/=(const Complex& complex2); // операция деления с присваиванием
 
 	Complex& operator=(const Complex&) = default; // операция присваивания
 	
-	bool operator==(const Complex& comlex2) const; // операция равенства
-	bool operator!=(const Complex& comlex2) const; // операция неравенства
+	bool operator==(const Complex& complex2) const; // операция равенства
+	bool operator!=(const Complex& complex2) const; // операция неравенства
 
 	double GetRe() const noexcept; // методы получения свойств
 	double GetIm() const noexcept;
@@ -103,6 +103,8 @@ public:
 	static void SetOutForm(const OutForm& outForm); // метод установки формы вывода
 	static void SetOutPrecision(const size_t& outPrecision); // метод установки количества знаков после запятой при выводе комплексного числа
 
+	std::string ToString() const; // метод преобразования в строку
+	
 	friend std::ostream& operator<<(std::ostream& os, const Complex& complex) // операция помещения в поток вывода
 	{
 		os.setf(std::ios::fixed);
@@ -149,9 +151,6 @@ public:
 
 		return os;
 	}
-
-	std::string ToString() const; // метод преобразования в строку
-	operator double() const noexcept; // операция приведения Complex к double
 };
 
 }

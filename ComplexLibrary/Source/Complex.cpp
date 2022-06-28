@@ -7,7 +7,6 @@
 namespace cpx
 {
 
-
 // определяем точность сравнения
 double CompareDouble::_epsilon{ 1.0e-10 };
 
@@ -132,12 +131,12 @@ Complex Complex::operator*() const
 }
 
 // операция суммы
-Complex operator+(const Complex& comlex1, const Complex& comlex2)
+Complex operator+(const Complex& complex1, const Complex& complex2)
 {
-	Complex result(comlex1); // присваиваем результату первый параметр и к нему прибавляем второй
+	Complex result(complex1); // присваиваем результату первый параметр и к нему прибавляем второй
 
-	result._re += comlex2._re;
-	result._im += comlex2._im;
+	result._re += complex2._re;
+	result._im += complex2._im;
 	result._mod = std::sqrt(result._re * result._re + result._im * result._im);
 	result._arg = _ArgDeg(result._re, result._im);
 
@@ -145,12 +144,12 @@ Complex operator+(const Complex& comlex1, const Complex& comlex2)
 }
 
 // операция разности
-Complex operator-(const Complex& comlex1, const Complex& comlex2)
+Complex operator-(const Complex& complex1, const Complex& complex2)
 {
-	Complex result(comlex1);
+	Complex result(complex1);
 
-	result._re -= comlex2._re;
-	result._im -= comlex2._im;
+	result._re -= complex2._re;
+	result._im -= complex2._im;
 	result._mod = _Mod(result._re, result._im);
 	result._arg = _ArgDeg(result._re, result._im);
 
@@ -158,12 +157,12 @@ Complex operator-(const Complex& comlex1, const Complex& comlex2)
 }
 
 // операция умножения
-Complex operator*(const Complex& comlex1, const Complex& comlex2)
+Complex operator*(const Complex& complex1, const Complex& complex2)
 {
-	Complex result(comlex1);
+	Complex result(complex1);
 
-	result._mod *= comlex2._mod;
-	result._arg += comlex2._arg;
+	result._mod *= complex2._mod;
+	result._arg += complex2._arg;
 	_NormalizeDeg(result._arg); // нормализируем угол
 	result._re = result._mod * _CosDeg(result._arg);
 	result._im = result._mod * _SinDeg(result._arg);
@@ -172,12 +171,12 @@ Complex operator*(const Complex& comlex1, const Complex& comlex2)
 }
 
 // операция деления
-Complex operator/(const Complex& comlex1, const Complex& comlex2)
+Complex operator/(const Complex& complex1, const Complex& complex2)
 {
-	Complex result(comlex1);
+	Complex result(complex1);
 
-	result._mod /= comlex2._mod;
-	result._arg -= comlex2._arg;
+	result._mod /= complex2._mod;
+	result._arg -= complex2._arg;
 	_NormalizeDeg(result._arg); // нормализируем угол
 	result._re = result._mod * _CosDeg(result._arg);
 	result._im = result._mod * _SinDeg(result._arg);
@@ -186,10 +185,10 @@ Complex operator/(const Complex& comlex1, const Complex& comlex2)
 }
 
 // операция суммы с присваиванием
-Complex& Complex::operator+=(const Complex& comlex2)
+Complex& Complex::operator+=(const Complex& complex2)
 {
-	_re += comlex2._re;
-	_im += comlex2._im;
+	_re += complex2._re;
+	_im += complex2._im;
 	_mod = _Mod(_re, _im);
 	_arg = _ArgDeg(_re, _im);
 
@@ -197,10 +196,10 @@ Complex& Complex::operator+=(const Complex& comlex2)
 }
 
 // операция разности с присваиванием
-Complex& Complex::operator-=(const Complex& comlex2)
+Complex& Complex::operator-=(const Complex& complex2)
 {
-	_re -= comlex2._re;
-	_im -= comlex2._im;
+	_re -= complex2._re;
+	_im -= complex2._im;
 	_mod = _Mod(_re, _im);
 	_arg = _ArgDeg(_re, _im);
 
@@ -208,10 +207,10 @@ Complex& Complex::operator-=(const Complex& comlex2)
 }
 
 // операция умножения с присваиванием
-Complex& Complex::operator*=(const Complex& comlex2)
+Complex& Complex::operator*=(const Complex& complex2)
 {
-	_mod *= comlex2._mod;
-	_arg += comlex2._arg;
+	_mod *= complex2._mod;
+	_arg += complex2._arg;
 	_NormalizeDeg(_arg); // нормализируем угол
 	_re = _mod * _CosDeg(_arg);
 	_im = _mod * _SinDeg(_arg);
@@ -220,10 +219,10 @@ Complex& Complex::operator*=(const Complex& comlex2)
 }
 
 // операция деления с присваиванием
-Complex& Complex::operator/=(const Complex& comlex2)
+Complex& Complex::operator/=(const Complex& complex2)
 {
-	_mod /= comlex2._mod;
-	_arg -= comlex2._arg;
+	_mod /= complex2._mod;
+	_arg -= complex2._arg;
 	_NormalizeDeg(_arg); // нормализируем угол
 	_re = _mod * _CosDeg(_arg);
 	_im = _mod * _SinDeg(_arg);
@@ -298,18 +297,18 @@ void Complex::SetOutPrecision(const size_t& outPrecision)
 }
 
 // операция равенства
-bool Complex::operator==(const Complex& comlex2) const
+bool Complex::operator==(const Complex& complex2) const
 {
-	return CompareDouble::AreEqual(_re, comlex2._re) && CompareDouble::AreEqual(_im, comlex2._im);
+	return CompareDouble::AreEqual(_re, complex2._re) && CompareDouble::AreEqual(_im, complex2._im);
 }
 
 // операция неравенства
-bool Complex::operator!=(const Complex& comlex2) const
+bool Complex::operator!=(const Complex& complex2) const
 {
-	return !CompareDouble::AreEqual(_re, comlex2._re) || !CompareDouble::AreEqual(_im, comlex2._im);
+	return !CompareDouble::AreEqual(_re, complex2._re) || !CompareDouble::AreEqual(_im, complex2._im);
 }
 
-// метод преобразования в строку
+// метод преобразования в строку (аналогичен помещению в поток вывода ostream)
 std::string Complex::ToString() const
 {
 	std::ostringstream oss;
@@ -357,12 +356,6 @@ std::string Complex::ToString() const
 	}
 
 	return oss.str();
-}
-
-// операция приведения Complex к double
-Complex::operator double() const noexcept
-{
-	return _mod;
 }
 
 }
